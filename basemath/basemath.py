@@ -52,13 +52,13 @@ class BaseMathsTest:
     # calculates the probability that the experiment has hit the bound between the two check-ins.
     @staticmethod
     def _probability_of_crossing(
-            intercept,
-            mean_H1,
-            var_H1,
-            samples_0,
-            successes_0,
-            samples_increment,
-            successes_change
+            intercept: float,
+            mean_H1: float,
+            var_H1: float,
+            samples_0: int,
+            successes_0: float,
+            samples_increment: int,
+            successes_change: float
     ):
 
         if intercept + (samples_0 + samples_increment) * mean_H1 >= successes_0 + successes_change:
@@ -73,10 +73,10 @@ class BaseMathsTest:
 
     def evaluate_experiment(
         self,
-        previous_success_delta,
-        success_change,
-        previous_samples_number,
-        samples_increment
+        previous_success_delta: float,
+        success_change: float,
+        previous_samples_number: int,
+        samples_increment: int
     ):
         """
         :param previous_success_delta: Difference between sum of successes of treatment and baseline at the last
