@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "basemath"
+version = "0.1.0"
+description = "A library for BaseMath's test, a novel Group Sequential Testing approach that enables the user to stop early."
+authors = ["Your Name <you@example.com>"]
+license = "Apache License 2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+numpy = "^1.14.0"
+scipy = "^1.6.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pre-commit = "^3.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
