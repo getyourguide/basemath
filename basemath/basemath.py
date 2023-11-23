@@ -10,16 +10,13 @@ from scipy.special import erfinv
 
 # you can get the running time (in samples for one variation) with instance_name.req_samples
 
-# the class has only one public method: evaluate_experiment(self, successes_A, successes_B, batch_samples)
+# the class has only one public method: evaluate_experiment(self, successes_A, successes_B, samples_increment)
 #     takes successes of A and B for the last batch and number of samples for one variation(!)
 #     returns 0 if result is insignificant, 1 for positively significant, and -1 for negatively significant
 
 
 class BaseMathsTest:
-    last_succ_diff = 0
-    samples = 0
-
-    stop = 0
+    state = 0
 
     # sub method to calculate the sample size and the threshold
     @staticmethod
@@ -70,41 +67,49 @@ class BaseMathsTest:
 
         return prob_neg
 
-    def evaluate_experiment(self, val_A, val_B, batch_samples):
+    def evaluate_experiment(
+        self,
+        previous_success_delta,
+        success_change,
+        previous_samples_number,
+        samples_increment
+    ):
+        """
+        :param previous_success_delta: Difference between sum of successes of treatment and baseline at the last
+            check-in.
+        :param success_change: Difference between sum of successes of treatment and baseline in the current batch.
+        :param previous_samples_number: Number of samples per variation at the last check-in.
+        :param samples_increment: Number of samples per variation in the current batch.
+        """
+        if self.state != 0:
+            return self.state
 
-        if self.stop != 0:
-            return self.stop
+        scaled_samples_increment = samples_increment
+        scaled_success_change = success_change
 
-        T_0 = self.samples
-        e_0 = self.last_succ_diff
-        T_diff = batch_samples
-        e_diff = val_B - val_A
+        is_last_evaluation = False
 
-        last_test = False
-
-        if T_0 + T_diff > self.required_samples:
-            T_diff = self.required_samples - T_0
-            share = float(T_diff) / batch_samples
-            e_diff = share * e_diff
-            last_test = True
-        prob_neg = self._probability_of_crossing(
-            self.intercept, self.mean_H1, self.var_H1, T_0, e_0, T_diff, e_diff
+        if previous_samples_number + samples_increment > self.required_samples:
+            scaled_samples_increment = self.required_samples - previous_samples_number
+            samples_share = float(scaled_samples_increment) / samples_increment
+            scaled_success_change = samples_share * success_change
+            is_last_evaluation = True
+        crossing_probability = self._probability_of_crossing(
+            self.intercept, self.mean_H1, self.var_H1, previous_samples_number, previous_success_delta,
+            scaled_samples_increment, scaled_success_change
         )
 
-        self.last_succ_diff += e_diff
-        self.samples += T_diff
-
-        stop = 0
-        if stats.uniform.rvs(random_state=self.seed) < prob_neg:
-            stop = -1
+        state = 0
+        if stats.uniform.rvs(random_state=self.seed) < crossing_probability:
+            state = -1
         self.seed = int(1_000_000_000 * stats.uniform.rvs(random_state=self.seed))
 
-        if (last_test) & (stop == 0):
-            stop = 1
+        if is_last_evaluation & (state == 0):
+            state = 1
 
-        self.stop = stop
+        self.state = state
 
-        return stop
+        return state
 
     def __init__(
         self,
