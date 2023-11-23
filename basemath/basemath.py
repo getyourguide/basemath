@@ -23,19 +23,19 @@ class BaseMathsTest:
 
     # sub method to calculate the sample size and the threshold
     @staticmethod
-    def _calculate_sample_size(var_0, mean_1, var_1, alpha, beta):
+    def _calculate_sample_size(var_H0, mean_H1, var_H1, alpha, beta):
 
         # base functions
         def D(T):
             if T < 0:
                 return 0
-            return -np.sqrt(2 * T * var_1) * erfinv(1 - beta)
+            return -np.sqrt(2 * T * var_H1) * erfinv(1 - beta)
 
         def term_1(x, T):
-            return D(T) / np.sqrt(2 * np.pi * var_0 * np.power(x, 3))
+            return D(T) / np.sqrt(2 * np.pi * var_H0 * np.power(x, 3))
 
         def term_2(x, T):
-            return np.exp(-np.power(D(T) + mean_1 * x, 2) / (2 * var_0 * x))
+            return np.exp(-np.power(D(T) + mean_H1 * x, 2) / (2 * var_H0 * x))
 
         def integrand(x, T):
             return term_1(x, T) * term_2(x, T)
@@ -49,24 +49,24 @@ class BaseMathsTest:
             return -integral(T) - 1 + alpha
 
         sample_size = optimize.root(fun, x0=100, jac=False).x[0]
-        bound = D(sample_size)
+        intercept = D(sample_size)
 
-        return (int(np.ceil(sample_size)), bound)
+        return (int(np.ceil(sample_size)), intercept)
 
     # sub method to calculate the probability that the experiment was
     # significantly positive or negative since the last check
     # Karatzas & Shreve, page 265
     @staticmethod
-    def _probability_of_crossing(D_low, mean_1, var_1, T_0, e_0, T_diff, e_diff):
+    def _probability_of_crossing(D_low, mean_H1, var_H1, T_0, e_0, T_diff, e_diff):
 
         # negative case
-        if D_low + (T_0 + T_diff) * mean_1 >= e_0 + e_diff:
+        if D_low + (T_0 + T_diff) * mean_H1 >= e_0 + e_diff:
             return 1.0
 
-        a_low = -e_diff + mean_1 * T_diff
-        beta_low = -D_low - mean_1 * T_0 + e_0
+        a_low = -e_diff + mean_H1 * T_diff
+        beta_low = -D_low - mean_H1 * T_0 + e_0
 
-        prob_neg = np.exp(-2 * beta_low * (beta_low - a_low) / (T_diff * var_1))
+        prob_neg = np.exp(-2 * beta_low * (beta_low - a_low) / (T_diff * var_H1))
 
         return prob_neg
 
@@ -88,7 +88,7 @@ class BaseMathsTest:
             e_diff = share * e_diff
             last_test = True
         prob_neg = self._probability_of_crossing(
-            self.bound, self.mean_1, self.var_1, T_0, e_0, T_diff, e_diff
+            self.intercept, self.mean_H1, self.var_H1, T_0, e_0, T_diff, e_diff
         )
 
         self.last_succ_diff += e_diff
@@ -108,33 +108,32 @@ class BaseMathsTest:
 
     def __init__(
         self,
-        mean_A,
-        uplift: float,
+        mean_A: float,
+        mde: float,
         alpha: float,
         beta: float,
         var_A: Optional[float] = None,
         seed: Optional[object] = None,
     ):
         """
-        :param mean_A: The (estimated) mean value of the success metric in the control variation
-        :param uplift: The minimal expected percentage uplift we expect to see on the B side.
+        :param mean_A: The (estimated) mean value of the success metric in the control variation.
+        :param mde: The minimum detectable (relative) effect (MDE) we expect to see on the B side.
                        For example: An expected 1% uplift should be passed as 0.01.
         :param alpha: The alpha value, or type 1 error, to use for the test.
-        :param beta: The betq value, or type 2 error, to use for the test.
+        :param beta: The beta value, or type 2 error, to use for the test.
         :param var_A: The (estimated) variance of the success metric in the control variation
-                      # TODO: This explanation below could be clearer, I'm sure.
-                      If the samples are Bernoulli distributed, then we can derive the variance
-                      from the mean, and this parameter is not necessary. Otherwise, it should
-                      be provided.
+                      If this parameter is not given, we assume the success metric to be binary (0, 1).
+                      In this case, the variance can be computed from the mean.
+                      Otherwise, we require an explicit estimation of the variance.
         :param seed: A seed used for the 'coin flip' compared against the probability
-                     that the experiment may have "crossed the line" inbetween evaluations.
+                     that the experiment may have "crossed the line" in between evaluations.
                      This should be set to something uniquely tied to the experiment, such as
                      a name or key, so that the experiment results stay consistent if the test
                      is performed multiple times.
         """
         self.mean_A = mean_A
-        self.mean_B = mean_A * (1.0 + uplift)
-        self.mean_1 = self.mean_B - self.mean_A
+        self.mean_B = mean_A * (1.0 + mde)
+        self.mean_H1 = self.mean_B - self.mean_A
 
         if var_A is not None:
             self.var_A = var_A
@@ -143,17 +142,16 @@ class BaseMathsTest:
             self.var_A = self.mean_A * (1 - self.mean_A)
             self.var_B = self.mean_B * (1 - self.mean_B)
 
-        self.var_0 = 2 * self.var_A
-        self.var_1 = self.var_A + self.var_B
+        self.var_H0 = 2 * self.var_A
+        self.var_H1 = self.var_A + self.var_B
 
         self.alpha = alpha
         self.beta = beta
-        self.uplift = uplift
 
         self.seed = None
         if seed is not None:
             self.seed = int(str(abs(hash(seed)))[:8])
 
-        (self.required_samples, self.bound) = self._calculate_sample_size(
-            self.var_0, self.mean_1, self.var_1, self.alpha, self.beta
+        (self.required_samples, self.intercept) = self._calculate_sample_size(
+            self.var_H0, self.mean_H1, self.var_H1, self.alpha, self.beta
         )
