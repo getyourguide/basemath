@@ -110,8 +110,8 @@ class BaseMathsTest:
         self,
         mean_A,
         uplift: float,
-        alpha: float = 0.05,
-        beta: float = 0.2,
+        alpha: float,
+        beta: float,
         var_A: Optional[float] = None,
         seed: Optional[object] = None,
     ):
@@ -119,8 +119,8 @@ class BaseMathsTest:
         :param mean_A: The (estimated) mean value of the success metric in the control variation
         :param uplift: The minimal expected percentage uplift we expect to see on the B side.
                        For example: An expected 1% uplift should be passed as 0.01.
-        :param alpha: The alpha value, or type 1 error, to use for the test. Defaults to 5% (0.05)
-        :param beta: The betq value, or type 2 error, to use for the test. Defaults to 20% (0.02)
+        :param alpha: The alpha value, or type 1 error, to use for the test.
+        :param beta: The betq value, or type 2 error, to use for the test.
         :param var_A: The (estimated) variance of the success metric in the control variation
                       # TODO: This explanation below could be clearer, I'm sure.
                       If the samples are Bernoulli distributed, then we can derive the variance
