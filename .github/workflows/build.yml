@@ -9,7 +9,7 @@ env:
 jobs:
 
   buildAndPublish:
-    runs-on: [ self-hosted, small ]
+    runs-on: ubuntu-latest
 
     permissions:
       id-token: write
@@ -24,16 +24,10 @@ jobs:
           extra_args: --hook-stage manual --all-files
       - name: Credential Scan
         uses: getyourguide/actions/credentials-scan@main
-      - name: Poetry install
-        uses: getyourguide/actions/poetry-install@main
-        with:
-          codeartifact-auth-token: ${{ secrets.CODEARTIFACT_AUTH_TOKEN }}
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Load Poetry venv
-        uses: getyourguide/actions/poetry-load@main
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install requirements
+        run: |
+          pip install poetry
+          poetry install
       - name: Run Tests
         run: |
-          . ./.venv/bin/activate
           pytest .
