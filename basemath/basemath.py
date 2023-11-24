@@ -17,11 +17,16 @@ from scipy.special import erfinv
 
 class BaseMathsTest:
 
-    # sub method to calculate the sample size and the threshold
+    # sub method to calculate the sample size per variation and the intercept
     @staticmethod
-    def _calculate_sample_size(var_H0, mean_H1, var_H1, alpha, beta):
+    def _calculate_sample_size(
+            var_H0: float,
+            mean_H1: float,
+            var_H1: float,
+            alpha: float,
+            beta: float
+    ):
 
-        # base functions
         def D(T):
             if T < 0:
                 return 0
@@ -45,9 +50,11 @@ class BaseMathsTest:
             return -integral(T) - 1 + alpha
 
         sample_size = optimize.root(fun, x0=100, jac=False).x[0]
+        sample_size_int = int(np.ceil(sample_size))
+
         intercept = D(sample_size)
 
-        return (int(np.ceil(sample_size)), intercept)
+        return (sample_size_int, intercept)
 
     # calculates the probability that the experiment has hit the bound between the two check-ins.
     @staticmethod
