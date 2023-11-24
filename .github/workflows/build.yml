@@ -1,0 +1,41 @@
+name: Build and Publish
+
+on:
+  push:
+
+env:
+  PYTHON_VERSION: '3.8'
+
+jobs:
+
+  buildAndPublish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3.5.3
+      - name: Pre-commit
+        uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --hook-stage manual --all-files
+      - name: Run Tests
+        run: |
+          pip install poetry
+          poetry install --with dev
+          . ./.venv/bin/activate
+          pytest .
+          rm -rf .venv
+      - name: Publish to PYPI
+        if: github.ref_name == 'main'
+        run: |
+          pip install poetry
+          poetry config virtualenvs.create false
+          poetry build
+          # basemath is already present as a package (as in math with bases), so use a slightly different name
+          poetry publish --name basemath-analysis -u "__token__" --password "$PYPI_TOKEN"
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
