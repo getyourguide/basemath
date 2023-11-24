@@ -1,6 +1,17 @@
 # Basemath
 
-(Description of who/what the library is for, the benefits it presents, a brief description of how it accomplishes providing those benefits, linking to the paper in case there's interest in more detail beyond that)
+Welcome to Basemath, an open-source implementation of the statistical test bearing the same name designed for analyzing
+AB experiments.
+
+Basemath employs a one-sided testing approach, where the null hypothesis posits that the treatment performs either
+equally or worse than the control concerning the target metric. The test has a predetermined maximum runtime determined
+by the input parameters. Additionally, it ensures that both type I and type II errors remain below specified error
+thresholds, denoted as α and β, respectively.  Basemath assesses the experiment in batches and terminates prematurely
+if it can reject the null hypothesis. The β-spending function employed is is O’Brien-Fleming-like.
+
+What sets Basemath apart is its avoidance of recurrent numerical integration resulting in a straightforward and fast
+implementation. For a detailed exploration of Basemath's mathematical foundations, refer to our article
+[Basemath’s Test: Group Sequential Testing Without Recurrent Numerical Integration](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4599695).
 
 ## Installation
 Simply install the library using your package manger of choice.
