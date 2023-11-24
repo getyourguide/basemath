@@ -35,7 +35,7 @@ customers / number of visitors) by at least 1%.
 You initialize Basemath using the following Python code:
 
 ```python
-import basemath_analysis as bm
+import basemath_analysis.basemath as bm
 bm_test = bm.BaseMathsTest(cr_A, mde, alpha, beta, seed="experiment_name")
 ```
 The parameters are as follows:
