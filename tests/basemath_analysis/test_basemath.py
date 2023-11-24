@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from basemath.basemath import AnalysisException, BaseMathsTest
+from basemath_analysis.basemath import AnalysisException, BaseMathsTest
 
 
 def test_experiment_success():
@@ -225,7 +225,7 @@ def test_guarantee_crossing_bound():
     basemath = BaseMathsTest(0.3, 0.9, 0.05, 0.2, seed="test-experiment")
     assert basemath.required_samples == 42
     assert basemath.evaluate_experiment(0, -1, 0, 10) == 0
-    with patch("basemath.basemath.stats.uniform.rvs") as mock_rvs:
+    with patch("basemath_analysis.basemath.stats.uniform.rvs") as mock_rvs:
         mock_rvs.return_value = 0.999999999
         assert basemath.evaluate_experiment(-1, -10, 10, 40) == -1
 
