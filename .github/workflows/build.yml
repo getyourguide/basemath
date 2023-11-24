@@ -26,4 +26,5 @@ jobs:
         run: |
           pip install poetry
           poetry install --with dev
-          python -m pytest .
+          . ./.venv/bin/activate
+          pytest .
