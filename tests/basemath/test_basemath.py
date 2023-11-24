@@ -210,16 +210,12 @@ def test_experiment_with_negative_required_samples():
     If the alpha and beta values are set inappropriately, the number of
     required samples can be negative. Not sure how to prevent this case.
     """
-    basemath = BaseMathsTest(0.3, 0.9, 0.9, 0.01, seed="test-experiment")
-    assert basemath.required_samples == -301
-    # Because the number of samples is negative, any provided number will trip our
-    #  "evaluating the experiment after reaching the required samples in the last check in" case
-    expected_exception_text = (
-        "Number of samples from previous check-in is greater than required samples. "
-        "A conclusion (1 or -1) should already have been reached!"
-    )
     with pytest.raises(AnalysisException) as exception_context_manager:
-        basemath.evaluate_experiment(0, 10, 0, 10)
+        BaseMathsTest(0.3, 0.9, 0.9, 0.01, seed="test-experiment")
+    expected_exception_text = (
+        "The provided alpha and beta values result in a negative number of required"
+        "samples -- please reconsider your values."
+    )
     assert str(exception_context_manager.value) == expected_exception_text
 
 

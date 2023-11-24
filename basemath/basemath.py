@@ -196,3 +196,9 @@ class BaseMathsTest:
         (self.required_samples, self.intercept) = self._calculate_sample_size(
             self.var_H0, self.mean_H1, self.var_H1, self.alpha, self.beta
         )
+
+        if self.required_samples < 0:
+            raise AnalysisException(
+                "The provided alpha and beta values result in a negative number of required"
+                "samples -- please reconsider your values."
+            )
