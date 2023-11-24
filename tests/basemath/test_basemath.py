@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from basemath.basemath import BaseMathsTest
+from basemath.basemath import AnalysisException, BaseMathsTest
 
 
 def test_experiment_success():
@@ -56,10 +56,12 @@ def test_experiment_meets_samples_exactly():
 
 
 def test_uplift_impossible():
-    with pytest.raises(Exception) as exception_context_manager:
+    with pytest.raises(AnalysisException) as exception_context_manager:
         # 50% uplift on 0.9 would take us to 1.35, or 135%, which we cannot possibly reach
         BaseMathsTest(0.9, 0.5, 0.05, 0.2, seed="test-experiment")
-    expected_exception_text = ""
+    expected_exception_text = (
+        "Cannot possibly detect an effect that brings target metric over 100%"
+    )
     assert str(exception_context_manager.value) == expected_exception_text
 
 
@@ -72,25 +74,29 @@ def test_evaluate_experiment_called_after_experiment_over():
 
     So, we should raise an exception in this case
     """
-    basemath = BaseMathsTest(0.9, 0.5, 0.05, 0.2, seed="test-experiment")
+    basemath = BaseMathsTest(0.6, 0.5, 0.05, 0.2, seed="test-experiment")
     assert basemath.required_samples == 30
     assert basemath.evaluate_experiment(0, 30, 0, 50) == 1
-    with pytest.raises(Exception) as exception_context_manager:
+    with pytest.raises(AnalysisException) as exception_context_manager:
         basemath.evaluate_experiment(30, 20, 50, 30)
-    expected_exception_text = ""
+    expected_exception_text = (
+        "Number of samples from previous check-in is greater than required samples. "
+        "A conclusion (1 or -1) should already have been reached!"
+    )
     assert str(exception_context_manager.value) == expected_exception_text
 
 
-def test_negative_mde():
+@pytest.mark.parametrize("mde", [-0.5, 0])
+def test_non_positive_mde(mde):
     """
-    Negative uplift is not handled by our approach -- the intercept will always
+    Negative (or zero) uplift is not handled by our approach -- the intercept will always
     be negative, and so a "successful" experiment in this regard would fail, which
     could be misleading. Not sure if anyone would actually *want* to run an experiment
     like this, but good to validate for it just in case.
     """
-    with pytest.raises(Exception) as exception_context_manager:
-        BaseMathsTest(0.6, -0.5, 0.05, 0.2, seed="test-experiment")
-    expected_exception_text = ""
+    with pytest.raises(ValueError) as exception_context_manager:
+        BaseMathsTest(0.6, mde, 0.05, 0.2, seed="test-experiment")
+    expected_exception_text = "The minimum detectable effect must be positive!"
     assert str(exception_context_manager.value) == expected_exception_text
 
 
@@ -161,16 +167,22 @@ def test_all_zeros_in_experiment_evaluation():
     assert basemath.evaluate_experiment(0, 0, 0, 0) == 0
 
 
-def test_number_of_successes_exceeds_samples():
+@pytest.mark.parametrize("samples", [100, -100])
+def test_number_of_successes_exceeds_samples(samples):
     """
     If we have more successes than actual samples, that's not actually coherent
     input, but we currently accept it. Should we add validation for this case?
     """
-    # TODO: Decide whether to validate for this case
     basemath = BaseMathsTest(0.3, 0.9, 0.05, 0.2, seed="test-experiment")
-    assert basemath.evaluate_experiment(0, 500, 0, 1) == 0
-    # The absolute number of successes is the important thing -- we should also test for the negative case
-    assert basemath.evaluate_experiment(0, -5, 0, 1) == 0
+    # Negative change in samples
+    with pytest.raises(AnalysisException) as exception_context_manager_current:
+        basemath.evaluate_experiment(0, samples, 0, 10)
+    # Negative total of samples (as of previous check-in)
+    with pytest.raises(AnalysisException) as exception_context_manager_previous:
+        basemath.evaluate_experiment(samples, 0, 10, 0)
+    expected_exception = "Number of successes cannot be greater than number of samples"
+    assert str(exception_context_manager_current.value) == expected_exception
+    assert str(exception_context_manager_previous.value) == expected_exception
 
 
 def test_negative_number_of_samples():
@@ -181,9 +193,16 @@ def test_negative_number_of_samples():
     Currently, a negative value sets the probability of crossing to a value
     greater than 1, meaning the call always results in experiment failure (-1)
     """
-    # TODO: Decide whether to validate for this case
     basemath = BaseMathsTest(0.3, 0.9, 0.05, 0.2, seed="test-experiment")
-    assert basemath.evaluate_experiment(0, 5, 0, -1) == -1
+    # Negative change in samples
+    with pytest.raises(AnalysisException) as exception_context_manager_current:
+        basemath.evaluate_experiment(0, -1, 0, -1)
+    # Negative total of samples (as of previous check-in)
+    with pytest.raises(AnalysisException) as exception_context_manager_previous:
+        basemath.evaluate_experiment(0, 5, -1, 10)
+    expected_exception = "Number of samples cannot be less than 0"
+    assert str(exception_context_manager_current.value) == expected_exception
+    assert str(exception_context_manager_previous.value) == expected_exception
 
 
 def test_experiment_with_negative_required_samples():
@@ -191,14 +210,17 @@ def test_experiment_with_negative_required_samples():
     If the alpha and beta values are set inappropriately, the number of
     required samples can be negative. Not sure how to prevent this case.
     """
-    # TODO: Decide what to do about this case
     basemath = BaseMathsTest(0.3, 0.9, 0.9, 0.01, seed="test-experiment")
     assert basemath.required_samples == -301
-    # A typical call results in experiment failure
-    assert basemath.evaluate_experiment(0, 10, 0, 10) == -1
-    # This atypical call results in a division by zero error
-    with pytest.raises(ZeroDivisionError):
-        basemath.evaluate_experiment(0, 0, 0, 0)
+    # Because the number of samples is negative, any provided number will trip our
+    #  "evaluating the experiment after reaching the required samples in the last check in" case
+    expected_exception_text = (
+        "Number of samples from previous check-in is greater than required samples. "
+        "A conclusion (1 or -1) should already have been reached!"
+    )
+    with pytest.raises(AnalysisException) as exception_context_manager:
+        basemath.evaluate_experiment(0, 10, 0, 10)
+    assert str(exception_context_manager.value) == expected_exception_text
 
 
 def test_guarantee_crossing_bound():

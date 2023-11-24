@@ -6,6 +6,10 @@ from scipy import integrate, optimize, stats
 from scipy.special import erfinv
 
 
+class AnalysisException(Exception):
+    pass
+
+
 class BaseMathsTest:
 
     # sub method to calculate the sample size per variation and the intercept
@@ -83,10 +87,20 @@ class BaseMathsTest:
         :param previous_samples_number: Number of samples per variation at the last check-in.
         :param samples_increment: Number of samples per variation in the current batch.
         """
-
-        # TODO
-        # if previous_samples_number >= self.required_samples:
-        #     throw exception
+        if samples_increment < 0 or previous_samples_number < 0:
+            raise AnalysisException("Number of samples cannot be less than 0")
+        if (
+            abs(success_change) > samples_increment
+            or abs(previous_success_delta) > previous_samples_number
+        ):
+            raise AnalysisException(
+                "Number of successes cannot be greater than number of samples"
+            )
+        if previous_samples_number > self.required_samples:
+            raise AnalysisException(
+                "Number of samples from previous check-in is greater than required samples. "
+                "A conclusion (1 or -1) should already have been reached!"
+            )
 
         scaled_samples_increment = samples_increment
         scaled_success_change = success_change
@@ -151,9 +165,15 @@ class BaseMathsTest:
                     f"Received invalid value of {value}. Passed values for mean, alpha and beta should"
                     f"be within (0, 1)"
                 )
+        if mde <= 0:
+            raise ValueError("The minimum detectable effect must be positive!")
 
         self.mean_A = mean_A
         self.mean_B = mean_A * (1.0 + mde)
+        if self.mean_B > 1:
+            raise AnalysisException(
+                "Cannot possibly detect an effect that brings target metric over 100%"
+            )
         self.mean_H1 = self.mean_B - self.mean_A
 
         if var_A is not None:
