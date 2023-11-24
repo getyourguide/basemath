@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "basemath"
+name = "basemath-analysis"
 version = "0.1.0"
 description = "A library for BaseMath's test, a novel Group Sequential Testing approach that enables the user to stop early."
 authors = ["Data Products GYG <engineering.data-products@getyourguide.com>"]
