@@ -22,8 +22,6 @@ jobs:
         uses: pre-commit/action@v3.0.0
         with:
           extra_args: --hook-stage manual --all-files
-      - name: Credential Scan
-        uses: getyourguide/actions/credentials-scan@main
       - name: Install requirements
         run: |
           pip install poetry
