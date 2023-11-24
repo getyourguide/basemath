@@ -43,7 +43,7 @@ The parameters are as follows:
 * __cr_A__: The estimated conversion rate of your control group.
 * __mde__: The minimal relative uplift you are aiming for (1% in our example).
 * __alpha__: The maximal type I error you are willing to tolerate (α is often set to 5%).
-* __beta__: The maximal type II error you are willing to tolerate (β is often set to 5%).
+* __beta__: The maximal type II error you are willing to tolerate (β is often set to 20%).
 * __seed__: As the algorithm contains a random element, set a seed to ensure consistent outcomes when running the
 algorithm repeatedly on the same data. The seed is generated from a string such as the unique experiment name.
 After initialization, you can check the maximum number of required samples for each variation to estimate the running
