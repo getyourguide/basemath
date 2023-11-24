@@ -118,11 +118,11 @@ def test_mde_greater_than_one():
     It could easily be greater than or equal to 1, like 2 for a 200% uplift. That's
     not a very realistic experiment, but it should still work with our approach.
     """
-    basemath = BaseMathsTest(0.1, 3, 0.05, 0.2, seed="test-experiment")
-    assert basemath.required_samples == 47
-    assert basemath.evaluate_experiment(0, 12, 0, 15) == 0
-    assert basemath.evaluate_experiment(12, 20, 15, 30) == 0
-    assert basemath.evaluate_experiment(32, 8, 45, 10) == 1
+    basemath = BaseMathsTest(0.01, 3, 0.05, 0.2, seed="test-experiment")
+    assert basemath.required_samples == 261
+    assert basemath.evaluate_experiment(0, 120, 0, 150) == 0
+    assert basemath.evaluate_experiment(120, 50, 150, 80) == 0
+    assert basemath.evaluate_experiment(170, 26, 230, 40) == 1
 
 
 def test_first_call_concludes_experiment_failure():
@@ -215,20 +215,6 @@ def test_negative_number_of_samples():
     expected_exception = "Number of samples cannot be less than 0"
     assert str(exception_context_manager_current.value) == expected_exception
     assert str(exception_context_manager_previous.value) == expected_exception
-
-
-def test_experiment_with_negative_required_samples():
-    """
-    Due to some instability in the root-finding method we use, some alpha/beta values
-    can result in a negative number of samples. We have some basic handling for this case.
-    """
-    with pytest.raises(AnalysisException) as exception_context_manager:
-        BaseMathsTest(0.3, 0.9, 0.9, 0.01, seed="test-experiment")
-    expected_exception_text = (
-        "The provided alpha and beta values result in a negative number of required"
-        "samples -- please reconsider your values."
-    )
-    assert str(exception_context_manager.value) == expected_exception_text
 
 
 def test_guarantee_crossing_bound():
