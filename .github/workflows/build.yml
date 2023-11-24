@@ -1,0 +1,39 @@
+name: Build and Publish
+
+on:
+  push:
+
+env:
+  PYTHON_VERSION: '3.8'
+
+jobs:
+
+  buildAndPublish:
+    runs-on: [ self-hosted, small ]
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3.5.3
+      - name: Pre-commit
+        uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --hook-stage manual --all-files
+      - name: Credential Scan
+        uses: getyourguide/actions/credentials-scan@main
+      - name: Poetry install
+        uses: getyourguide/actions/poetry-install@main
+        with:
+          codeartifact-auth-token: ${{ secrets.CODEARTIFACT_AUTH_TOKEN }}
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Load Poetry venv
+        uses: getyourguide/actions/poetry-load@main
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run Tests
+        run: |
+          . ./.venv/bin/activate
+          pytest .
