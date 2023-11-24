@@ -22,12 +22,8 @@ jobs:
         uses: pre-commit/action@v3.0.0
         with:
           extra_args: --hook-stage manual --all-files
-      - name: Install requirements
-        run: |
-          pip install --upgrade pip
-          pip install poetry~=1.3.2
-          poetry config --local virtualenvs.create false
-          poetry install --no-interaction --no-ansi
       - name: Run Tests
         run: |
+          pip install poetry
+          poetry install
           pytest .
