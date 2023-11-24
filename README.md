@@ -99,4 +99,8 @@ More detailed examples are available [here](./examples).
 
 ## Contributing
 
-(How to get started as a contributor, e.g. environment setup, Olivia will write this)
+To contribute, you'll need a working python 3.8+ installation. We also recommend setting up a virtual environment for the project. You'll also need to [install poetry](https://python-poetry.org/docs/) if it's not already present.
+
+Once you have the dependencies installed (with `poetry install`), you can set up pre-commit with `pre-commit install`. We run pre-commit in our CI as well, but it's recommended to install it locally so that you get immediate feedback from our various linters.
+
+Beyond that, there's not really anything else you need to know to start contributing! Please create a pull request with whatever changes you'd like to propose and increment the version and update the changelog if necessary.
