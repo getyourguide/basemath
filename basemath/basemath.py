@@ -4,17 +4,6 @@ import numpy as np
 from scipy import integrate, optimize, stats
 from scipy.special import erfinv
 
-# Basemath's Test
-
-# initialise instance by calling basemaths_test(p_A, p_B, alpha, beta)
-
-# you can get the running time (in samples for one variation) with instance_name.req_samples
-
-# the class has only one public method: evaluate_experiment(self, successes_A, successes_B, samples_increment)
-#     takes successes of A and B for the last batch and number of samples for one variation(!)
-#     returns 0 if result is insignificant, 1 for positively significant, and -1 for negatively significant
-
-
 class BaseMathsTest:
 
     # sub method to calculate the sample size per variation and the intercept
