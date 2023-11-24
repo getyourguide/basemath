@@ -44,6 +44,13 @@ class BaseMathsTest:
 
         intercept = D(sample_size)
 
+        if np.abs(fun(sample_size)) > 0.000001:
+            raise AnalysisException(
+                "The numerical solver was not able to find a root for the provided values."
+                "This is an internal error that can happen with extreme values that result "
+                "in a very low required number of samples."
+            )
+
         return (sample_size_int, intercept)
 
     # calculates the probability that the experiment has hit the bound between the two check-ins.

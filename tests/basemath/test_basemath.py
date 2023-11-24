@@ -297,11 +297,27 @@ def test_mean_greater_than_one_and_variance_provided():
     We accept a mean value that is greater than 1 as long as variance is also provided.
     In this case, we should run without issue.
     """
-    basemath = BaseMathsTest(5, 0.5, 0.05, 0.2, seed="test-experiment", var_A=2)
-    assert basemath.required_samples == 100
-    assert basemath.evaluate_experiment(0, 40, 0, 40) == 0
-    assert basemath.evaluate_experiment(30, 20, 40, 30) == 0
-    assert basemath.evaluate_experiment(50, 25, 70, 40) == 1
+    basemath = BaseMathsTest(5, 0.2, 0.05, 0.2, seed="test-experiment", var_A=2)
+    assert basemath.required_samples == 28
+    assert basemath.evaluate_experiment(0, 8, 0, 10) == 0
+    assert basemath.evaluate_experiment(10, 9, 10, 12) == 0
+    assert basemath.evaluate_experiment(19, 6, 22, 8) == 1
+
+
+def test_mean_greater_than_one_and_variance_provided_():
+    """
+    In certain situations with high MDE, the solver hits an issue as the number
+    of required samples decays. For now, we just raise an exception when this behavior
+    is hit, as the low sample values aren't realistic for an actual experiment
+    """
+    with pytest.raises(AnalysisException) as exception_context_manager:
+        BaseMathsTest(5, 0.5, 0.05, 0.2, seed="test-experiment", var_A=2)
+    expected_exception_text = (
+        "The numerical solver was not able to find a root for the provided values."
+        "This is an internal error that can happen with extreme values that result "
+        "in a very low required number of samples."
+    )
+    assert str(exception_context_manager.value) == expected_exception_text
 
 
 @pytest.mark.parametrize("variance", [-10, 0])
