@@ -16,7 +16,6 @@ from scipy.special import erfinv
 
 
 class BaseMathsTest:
-    state = 0
 
     # sub method to calculate the sample size and the threshold
     @staticmethod
@@ -50,22 +49,27 @@ class BaseMathsTest:
 
         return (int(np.ceil(sample_size)), intercept)
 
-    # sub method to calculate the probability that the experiment was
-    # significantly positive or negative since the last check
-    # Karatzas & Shreve, page 265
+    # calculates the probability that the experiment has hit the bound between the two check-ins.
     @staticmethod
-    def _probability_of_crossing(D_low, mean_H1, var_H1, T_0, e_0, T_diff, e_diff):
+    def _probability_of_crossing(
+            intercept,
+            mean_H1,
+            var_H1,
+            samples_0,
+            successes_0,
+            samples_increment,
+            successes_change
+    ):
 
-        # negative case
-        if D_low + (T_0 + T_diff) * mean_H1 >= e_0 + e_diff:
+        if intercept + (samples_0 + samples_increment) * mean_H1 >= successes_0 + successes_change:
             return 1.0
 
-        a_low = -e_diff + mean_H1 * T_diff
-        beta_low = -D_low - mean_H1 * T_0 + e_0
+        term_1 = -successes_change + mean_H1 * samples_increment
+        term_2 = -intercept - mean_H1 * samples_0 + successes_0
 
-        prob_neg = np.exp(-2 * beta_low * (beta_low - a_low) / (T_diff * var_H1))
+        crossing_probability = np.exp(-2 * term_2 * (term_2 - term_1) / (samples_increment * var_H1))
 
-        return prob_neg
+        return crossing_probability
 
     def evaluate_experiment(
         self,
@@ -81,8 +85,10 @@ class BaseMathsTest:
         :param previous_samples_number: Number of samples per variation at the last check-in.
         :param samples_increment: Number of samples per variation in the current batch.
         """
-        if self.state != 0:
-            return self.state
+
+        ## TODO
+        ## if previous_samples_number >= self.required_samples:
+        ##     throw exception
 
         scaled_samples_increment = samples_increment
         scaled_success_change = success_change
@@ -106,8 +112,6 @@ class BaseMathsTest:
 
         if is_last_evaluation & (state == 0):
             state = 1
-
-        self.state = state
 
         return state
 
