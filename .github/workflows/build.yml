@@ -24,6 +24,6 @@ jobs:
           extra_args: --hook-stage manual --all-files
       - name: Run Tests
         run: |
-          pip install poetry --with dev
-          poetry install
+          pip install poetry
+          poetry install --with dev
           pytest .
