@@ -30,7 +30,7 @@ jobs:
           pytest .
           rm -rf .venv
       - name: Publish to PYPI
-        if: github.ref_name == 'main'
+#        if: github.ref_name == 'main'
         run: |
           pip install poetry
           poetry config virtualenvs.create false
