@@ -174,6 +174,8 @@ class BaseMathsTest:
                 "When variance is not passed, we assume a binary metric -- in this case, "
                 "the provided mean must be between 0 and 1 OR the variance must be provided."
             )
+        if var_A is not None and var_A <= 0:
+            raise ValueError("Variance must be positive if provided!")
         self.mean_A = mean_A
         self.mean_B = mean_A * (1.0 + mde)
         # This check only applies for the binary case, i.e. where we don't receive the variance

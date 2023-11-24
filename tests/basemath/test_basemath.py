@@ -219,8 +219,8 @@ def test_negative_number_of_samples():
 
 def test_experiment_with_negative_required_samples():
     """
-    If the alpha and beta values are set inappropriately, the number of
-    required samples can be negative. Not sure how to prevent this case.
+    Due to some instability in the root-finding method we use, some alpha/beta values
+    can result in a negative number of samples. We have some basic handling for this case.
     """
     with pytest.raises(AnalysisException) as exception_context_manager:
         BaseMathsTest(0.3, 0.9, 0.9, 0.01, seed="test-experiment")
@@ -289,4 +289,28 @@ def test_mean_greater_than_one_and_variance_not_provided():
         "When variance is not passed, we assume a binary metric -- in this case, "
         "the provided mean must be between 0 and 1 OR the variance must be provided."
     )
+    assert str(exception_context_manager.value) == expected_exception_text
+
+
+def test_mean_greater_than_one_and_variance_provided():
+    """
+    We accept a mean value that is greater than 1 as long as variance is also provided.
+    In this case, we should run without issue.
+    """
+    basemath = BaseMathsTest(5, 0.5, 0.05, 0.2, seed="test-experiment", var_A=2)
+    assert basemath.required_samples == 100
+    assert basemath.evaluate_experiment(0, 40, 0, 40) == 0
+    assert basemath.evaluate_experiment(30, 20, 40, 30) == 0
+    assert basemath.evaluate_experiment(50, 25, 70, 40) == 1
+
+
+@pytest.mark.parametrize("variance", [-10, 0])
+def test_variance_non_positive(variance):
+    """
+    The provided variance must be greater than zero -- if it's not, we should
+    raise an exception
+    """
+    with pytest.raises(ValueError) as exception_context_manager:
+        BaseMathsTest(50, 0.01, 0.05, 0.2, var_A=variance, seed="test-experiment")
+    expected_exception_text = "Variance must be positive if provided!"
     assert str(exception_context_manager.value) == expected_exception_text
