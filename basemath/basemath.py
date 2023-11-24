@@ -159,20 +159,27 @@ class BaseMathsTest:
                      a name or key, so that the experiment results stay consistent if the test
                      is performed multiple times.
         """
-        for value in (mean_A, alpha, beta):
+        for value in (alpha, beta):
             if value <= 0 or value >= 1:
                 raise ValueError(
-                    f"Received invalid value of {value}. Passed values for mean, alpha and beta should"
+                    f"Received invalid value of {value}. Passed values for alpha and beta should"
                     f"be within (0, 1)"
                 )
         if mde <= 0:
             raise ValueError("The minimum detectable effect must be positive!")
-
+        if mean_A <= 0:
+            raise ValueError("mean_A must be positive!")
+        if var_A is None and mean_A >= 1:
+            raise ValueError(
+                "When variance is not passed, we assume a binary metric -- in this case, "
+                "the provided mean must be between 0 and 1 OR the variance must be provided."
+            )
         self.mean_A = mean_A
         self.mean_B = mean_A * (1.0 + mde)
-        if self.mean_B > 1:
+        # This check only applies for the binary case, i.e. where we don't receive the variance
+        if self.mean_B > 1 and var_A is None:
             raise AnalysisException(
-                "Cannot possibly detect an effect that brings target metric over 100%"
+                "Cannot possibly detect an effect that brings binary target metric over 100%"
             )
         self.mean_H1 = self.mean_B - self.mean_A
 

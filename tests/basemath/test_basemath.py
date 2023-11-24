@@ -56,13 +56,25 @@ def test_experiment_meets_samples_exactly():
 
 
 def test_uplift_impossible():
+    """
+    For binary experiments, the uplift can't be such that it brings the target metric over 100%.
+    We should proactively check for this case, as we don't error otherwise.
+    """
     with pytest.raises(AnalysisException) as exception_context_manager:
         # 50% uplift on 0.9 would take us to 1.35, or 135%, which we cannot possibly reach
         BaseMathsTest(0.9, 0.5, 0.05, 0.2, seed="test-experiment")
     expected_exception_text = (
-        "Cannot possibly detect an effect that brings target metric over 100%"
+        "Cannot possibly detect an effect that brings binary target metric over 100%"
     )
     assert str(exception_context_manager.value) == expected_exception_text
+
+
+def test_uplift_over_one_non_binary_case():
+    """
+    In the non-binary case, it's completely fine if the target metric goes over 100%
+    """
+    # We *don't* raise an exception here, so the test passes
+    BaseMathsTest(0.9, 0.5, 0.05, 0.2, seed="test-experiment", var_A=0.5)
 
 
 def test_evaluate_experiment_called_after_experiment_over():
@@ -244,7 +256,7 @@ def test_atypical_alpha_beta_values():
 
 
 @pytest.mark.parametrize("value", [-0.05, 0, 1, 1.01])
-def test_bounded_values_out_of_bounds(value):
+def test_alpha_beta_out_of_bounds(value):
     """
     If we receive an alpha value outside of (0, 1), we should raise an exception
     """
@@ -252,5 +264,29 @@ def test_bounded_values_out_of_bounds(value):
         BaseMathsTest(0.9, 0.01, value, 0.2)
     with pytest.raises(ValueError):
         BaseMathsTest(0.9, 0.01, 0.05, value)
-    with pytest.raises(ValueError):
-        BaseMathsTest(value, 0.01, 0.05, 0.2)
+
+
+@pytest.mark.parametrize("mean_A", [-10, 0])
+def test_mean_non_positive(mean_A):
+    """
+    mean_A can be any positive number, meaning it cannot be 0 or negative. We
+    should raise an exception in this case.
+    """
+    with pytest.raises(ValueError) as exception_context_manager:
+        BaseMathsTest(mean_A, 0.01, 0.05, 0.2, seed="test-experiment")
+    expected_exception_text = "mean_A must be positive!"
+    assert str(exception_context_manager.value) == expected_exception_text
+
+
+def test_mean_greater_than_one_and_variance_not_provided():
+    """
+    In the non-binary case, we can have a mean greater than 1.
+    BUT, we need the variance if this happens. So, validate for this case.
+    """
+    with pytest.raises(ValueError) as exception_context_manager:
+        BaseMathsTest(5, 0.01, 0.05, 0.2, seed="test-experiment")
+    expected_exception_text = (
+        "When variance is not passed, we assume a binary metric -- in this case, "
+        "the provided mean must be between 0 and 1 OR the variance must be provided."
+    )
+    assert str(exception_context_manager.value) == expected_exception_text
