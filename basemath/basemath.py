@@ -107,6 +107,7 @@ class BaseMathsTest:
             samples_share = float(scaled_samples_increment) / samples_increment
             scaled_success_change = samples_share * success_change
             is_last_evaluation = True
+
         crossing_probability = self._probability_of_crossing(
             self.intercept, self.mean_H1, self.var_H1, previous_samples_number, previous_success_delta,
             scaled_samples_increment, scaled_success_change
