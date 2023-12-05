@@ -13,8 +13,7 @@ updates:
       timezone: Europe/Berlin
     pull-request-branch-name:
       separator: "-"
-    open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch", "version-update:semver-minor"]
+    open-pull-requests-limit: 0
+    allow:
+      - dependency-type: "all"
     insecure-external-code-execution: allow
