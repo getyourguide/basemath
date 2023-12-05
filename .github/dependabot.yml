@@ -16,4 +16,5 @@ updates:
     open-pull-requests-limit: 0
     allow:
       - dependency-type: "all"
+    versioning-strategy: "increase-if-necessary"
     insecure-external-code-execution: allow
