@@ -4,10 +4,10 @@ Welcome to Basemath, an open-source implementation of the statistical test beari
 AB experiments.
 
 Basemath employs a one-sided testing approach, where the null hypothesis posits that the treatment performs either
-equally or worse than the control concerning the target metric. The test has a predetermined maximum runtime determined
+equally or worse than the control concerning the target metric. The test has a predetermined maximum sample size determined
 by the input parameters. Additionally, it ensures that both type I and type II errors remain below specified error
 thresholds, denoted as α and β, respectively.  Basemath assesses the experiment in batches and terminates prematurely
-if it can reject the null hypothesis. The β-spending function employed is is O’Brien-Fleming-like.
+if it can not reject the null hypothesis. The β-spending function employed is O’Brien-Fleming-like.
 Given that the majority of experiments yield either flat or negative results, stopping early in this scenario saves more
 running time compared to stopping in the less common case of a significant uplift.
 
@@ -61,6 +61,7 @@ bm_test.evaluate_experiment(
     customer_delta_since_yesterday,
     previous_visitor_number,
     visitors_since_yesterday
+)
 ```
 
 The parameters for this method are:
