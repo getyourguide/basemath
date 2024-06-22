@@ -9,7 +9,7 @@ repository = "https://github.com/getyourguide/basemath"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
-numpy = "^1.14.0"
+numpy = "^2.0.0"
 scipy = "^1.10.0"
 
 [tool.poetry.group.dev.dependencies]
