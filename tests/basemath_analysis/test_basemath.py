@@ -170,7 +170,7 @@ def test_seed_not_provided():
     #  zero but less than the total requirement risks losing the 'coin flip' to determine whether we crossed the line
     #  (since we don't control the seed in this test), so we set it to zero to keep the test deterministic
     assert basemath.evaluate_experiment(0, 0, 0, 0) == 0
-    # And now we evaluate with all the samples at once, again deterministic
+    # And now we evaluate with >=required_samples, again deterministic
     assert basemath.evaluate_experiment(0, -10, 0, 50) == -1
 
 
