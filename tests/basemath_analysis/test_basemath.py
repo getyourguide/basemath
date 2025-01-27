@@ -166,9 +166,9 @@ def test_seed_not_provided():
     """
     basemath = BaseMathsTest(0.3, 0.9, 0.05, 0.2)
     assert basemath.required_samples == 42
-    # First evaluation to show that the experiment starts inconclusive. Using any number of samples lower than
-    #  the total requirement risks losing the 'coin flip' to determine whether we crossed the line (since we don't
-    #  control the seed in this test), so we set it to zero to keep the test deterministic
+    # First evaluation to show that the experiment starts inconclusive. Using a number of samples that's greater than
+    #  zero but less than the total requirement risks losing the 'coin flip' to determine whether we crossed the line
+    #  (since we don't control the seed in this test), so we set it to zero to keep the test deterministic
     assert basemath.evaluate_experiment(0, 0, 0, 0) == 0
     # And now we evaluate with all the samples at once, again deterministic
     assert basemath.evaluate_experiment(0, -10, 0, 50) == -1
