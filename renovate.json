@@ -3,7 +3,7 @@
   "extends": [
     "config:base", ":disableDependencyDashboard"
   ],
-  "label": ["dependencies"],
+  "labels": ["dependencies"],
   "timezone": "Europe/Berlin",
   "schedule": [
     "on Saturday"
