@@ -27,14 +27,14 @@ files = [
 
 [[package]]
 name = "distlib"
-version = "0.3.7"
+version = "0.4.4"
 description = "Distribution utilities"
 optional = false
 python-versions = "*"
 groups = ["dev"]
 files = [
-    {file = "distlib-0.3.7-py2.py3-none-any.whl", hash = "sha256:2e24928bc811348f0feb63014e97aaae3037f2cf48712d51ae61df7fd6075057"},
-    {file = "distlib-0.3.7.tar.gz", hash = "sha256:9dafe54b34a028eafd95039d5e5d4851a13734540f1331060d31c9916e7147a8"},
+    {file = "distlib-0.4.4-py2.py3-none-any.whl", hash = "sha256:cf09d55b1e85a89576b036aeb71550bfd68320f3f21761ca329eadadad918638"},
+    {file = "distlib-0.4.4.tar.gz", hash = "sha256:ca4175b4ac7f71223cc30ed7248c45d2b38c2439d8ee6e498ab67ed63cf3508d"},
 ]
 
 [[package]]
@@ -158,31 +158,27 @@ files = [
 
 [[package]]
 name = "packaging"
-version = "23.2"
+version = "26.3"
 description = "Core utilities for Python packages"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "packaging-23.2-py3-none-any.whl", hash = "sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7"},
-    {file = "packaging-23.2.tar.gz", hash = "sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5"},
+    {file = "packaging-26.3-py3-none-any.whl", hash = "sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"},
+    {file = "packaging-26.3.tar.gz", hash = "sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79"},
 ]
 
 [[package]]
 name = "platformdirs"
-version = "4.0.0"
-description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+version = "4.13.7"
+description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.11"
 groups = ["dev"]
 files = [
-    {file = "platformdirs-4.0.0-py3-none-any.whl", hash = "sha256:118c954d7e949b35437270383a3f2531e99dd93cf7ce4dc8340d3356d30f173b"},
-    {file = "platformdirs-4.0.0.tar.gz", hash = "sha256:cb633b2bcf10c51af60beb0ab06d2f1d69064b43abf4c185ca6b28865f3f9731"},
+    {file = "platformdirs-4.13.7-py3-none-any.whl", hash = "sha256:47664602fbecad0a6efa561fb690d20dbc26875fe8aedf65ba362935df619bbb"},
+    {file = "platformdirs-4.13.7.tar.gz", hash = "sha256:f7f351c027d6632c30471124e1fdb6ac0fef9ccc5cbac1b34cb333431b1fc3e1"},
 ]
-
-[package.extras]
-docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.1)", "sphinx-autodoc-typehints (>=1.24)"]
-test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4)", "pytest-cov (>=4.1)", "pytest-mock (>=3.11.1)"]
 
 [[package]]
 name = "pluggy"
@@ -434,21 +430,22 @@ type = ["importlib_metadata (>=7.0.2) ; python_version < \"3.10\"", "jaraco.deve
 
 [[package]]
 name = "virtualenv"
-version = "21.7.13"
+version = "21.14.13"
 description = "Virtual Python Environment builder"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "virtualenv-21.7.13-py3-none-any.whl", hash = "sha256:1bea5af7463f59c4719db48fe739579a2a4f569c96f26c086edda85c96da9f59"},
-    {file = "virtualenv-21.7.13.tar.gz", hash = "sha256:0355558b6f33619aab31347e43643b0ebc97f61ea3acf617b2b69e1f8a843d11"},
+    {file = "virtualenv-21.14.13-py3-none-any.whl", hash = "sha256:5fbb04138a4861580b78ba9110d529a26bc48fcc93c8ec36bc0202eeed96a788"},
+    {file = "virtualenv-21.14.13.tar.gz", hash = "sha256:de5307ba4b9a0001d9c8ea02832d38f63ca432880f416c1bface61c4323fd905"},
 ]
 
 [package.dependencies]
-distlib = ">=0.3.7,<1"
-filelock = {version = ">=3.24.2,<4", markers = "python_version >= \"3.10\""}
-platformdirs = ">=3.9.1,<5"
-python-discovery = ">=1.6"
+distlib = ">=0.4.3,<1"
+filelock = {version = ">=3.24.2,<5", markers = "python_version >= \"3.10\""}
+packaging = ">=26.3"
+platformdirs = ">=4.4,<5"
+python-discovery = ">=1.6.1"
 
 [metadata]
 lock-version = "2.1"
