@@ -1,3 +1,6 @@
+## Unreleased
+- Fix `TypeError` with numpy >= 2.4 when calculating the sample size (shape-(1,) array was passed to `scipy.integrate.quad`)
+
 ## Version 0.2.0
 - Drop support for Python 3.10 (end of life October 2026); Python 3.11+ is now required
 - Require `scipy>=1.16`, which ships wheels for Python 3.14

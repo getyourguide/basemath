@@ -32,6 +32,9 @@ class BaseMathsTest:
             return term_1(x, T) * term_2(x, T)
 
         def integral(T) -> float:
+            # optimize.root passes T as a shape-(1,) array; numpy >= 2.4 no longer
+            # implicitly converts non-0-d arrays to scalars, which quad requires.
+            T = float(np.squeeze(T))
             if T <= 0:
                 return 0
             return integrate.quad(integrand, 0, T, args=(T))[0]
